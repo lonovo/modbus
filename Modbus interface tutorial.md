@@ -44,14 +44,14 @@ When using Modbus/ASCII, all messages are coded in hexadecimal values, represent
 Modbus messages on serial connections are not sent in a plain format. They are framed to give receivers an easy way to detect the beginning and end of a message. When using Modbus/ASCII, characters are used to start and end a frame. The colon ':' is used to flag the start of a message and each message is ended with a CR/LF combination. Modbus/RTU on the other hand uses time gaps of silence on the communication line for the framing. Each message must be preceded by a time gap with a minimum length of 3.5 characters. If a receiver detects a gap of at least 1.5 characters, it assumes that a new message is comming and the receive buffer is cleared. The main advantage of Modbus/ASCII is, that it allowes gaps between the bytes of a message with a maximum length of 1 second. With Modbus/RTU it is necessary to send each message as a continuous stream. 
 
 Properties of Modbus/ASCII and Modbus/RTU
-|   |	Modbus/ASCII | Modbus/RTU |
-|   |-----|-----|
+| Property |	Modbus/ASCII | Modbus/RTU |
+|---|-----|-----|
 | Characters |	ASCII 0...9 and A..F | Binary 0...255 |
-| Error check	LRC Longitudinal | Redundancy Check	CRC Cyclic Redundancy Check|
+| Error check	| LRC Longitudinal  Redundancy Check	| CRC Cyclic Redundancy Check|
 | Frame start	character| ':'	|3.5 chars silence|
 | Frame end	characters| CR/LF|	3.5 chars silence|
 | Gaps in message|	1 sec|	1.5 times char length|
-| Start bit	1	1|
+| Start bit |	1|	1|
 | Data bits|	7|	8|
 | Parity	|even/odd	    none |even/odd    none|
 | Stop bits	|  1        2  |   1       2  |
