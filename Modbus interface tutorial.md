@@ -14,12 +14,17 @@
 ##History of the Modbus interface 
 
 Some communication standards just emerge. Not because they are pushed by a large group of vendors or a special standards organisation. These standards—like the Modbus interface—emerge because they are good, simple to implement and are therefore adapted by many manufacturers. Because of this, Modbus became the first widely accepted fieldbus standard.
+
 Modbus has its roots in the late seventies of the previous century. It is 1979 when PLC manufacturer Modicon—now a brand of Schneider Electric's Telemecanique—published the Modbus communication interface for a multidrop network based on a master/client architecture. Communication between the Modbus nodes was achieved with messages. It was an open standard that described the messaging structure. The physical layer of the Modbus interface was free to choose. The original Modbus interface ran on RS-232, but most later Modbus implementations used RS-485 because it allowed longer distances, higher speeds and the possibility of a true multi-drop network. In a short time hunderds of vendors implemented the Modbus messaging system in their devices and Modbus became the de facto standard for industrial communication networks.
+
 The nice thing of the Modbus standard is the flexibility, but at the same time the easy implementation of it. Not only intelligent devices like microcontrollers, PLCs etc. are able to communicate with Modbus, also many intelligent sensors are equiped with a Modbus interface to send their data to host systems. While Modbus was previously mainly used on wired serial communication lines, there are also extensions to the standard for wireless communications and TCP/IP networks. 
 
 ##Modbus message structure
+
 The Modbus communication interface is built around messages. The format of these Modbus messages is independent of the type of physical interface used. On plain old RS232 are the same messages used as on Modbus/TCP over ethernet. This gives the Modbus interface definition a very long lifetime. The same protocol can be used regardless of the connection type. Because of this, Modbus gives the possibility to easily upgrade the hardware structure of an industrial network, without the need for large changes in the software. A device can also communicate with several Modbus nodes at once, even if they are connected with different interface types, without the need to use a different protocol for every connection. 
+
 On simple interfaces like RS485 or RS232, the Modbus messages are sent in plain form over the network. In this case the network is dedicated to Modbus. When using more versatile network systems like TCP/IP over ethernet, the Modbus messages are embedded in packets with the format necessary for the physical interface. In that case Modbus and other types of connections can co-exist at the same physical interface at the same time. Although the main Modbus message structure is peer-to-peer, Modbus is able to function on both point-to-point and multidrop networks. 
+
 Each Modbus message has the same structure. Four basic elements are present in each message. The sequence of these elements is the same for all messages, to make it easy to parse the content of the Modbus message. A conversation is always started by a master in the Modbus network. A Modbus master sends a message and—depending of the contents of the message—a slave takes action and responds to it. There can be more masters in a Modbus network. Addressing in the message header is used to define which device should respond to a message. All other nodes on the Modbus network ignore the message if the address field doesn't match their own address. 
 
 Modbus message structure
@@ -33,20 +38,23 @@ Modbus message structure
 
 ##Modbus serial transmission modes: Modbus/ASCII and Modbus/RTU
 Serial Modbus connections can use two basic transmission modes, ASCII or RTU, remote terminal unit. The transmission mode in serial communications defines the way the Modbus messages are coded. With Modbus/ASCII, the messages are in a readable ASCII format. The Modbus/RTU format uses binary coding which makes the message unreadable when monitoring, but reduces the size of each message which allows for more data exchange in the same time span. All nodes on one Modbus network segment must use the same serial transmission mode. A device configured to use Modbus/ASCII cannot understand messages in Modbus/RTU and vice versa. 
+
 When using Modbus/ASCII, all messages are coded in hexadecimal values, represented with readable ASCII characters. Only the characters 0...9 and A...F are used for coding. For every byte of information, two communication-bytes are needed, because every communication-byte can only define 4 bits in the hexadecimal system. With Modbus/RTU the data is exchanged in a binary format, where each byte of information is coded in one communication-byte. 
+
 Modbus messages on serial connections are not sent in a plain format. They are framed to give receivers an easy way to detect the beginning and end of a message. When using Modbus/ASCII, characters are used to start and end a frame. The colon ':' is used to flag the start of a message and each message is ended with a CR/LF combination. Modbus/RTU on the other hand uses time gaps of silence on the communication line for the framing. Each message must be preceded by a time gap with a minimum length of 3.5 characters. If a receiver detects a gap of at least 1.5 characters, it assumes that a new message is comming and the receive buffer is cleared. The main advantage of Modbus/ASCII is, that it allowes gaps between the bytes of a message with a maximum length of 1 second. With Modbus/RTU it is necessary to send each message as a continuous stream. 
+
 Properties of Modbus/ASCII and Modbus/RTU
- 	Modbus/ASCII	Modbus/RTU
-Characters	ASCII 0...9 and A..F	Binary 0...255
-Error check	LRC Longitudinal Redundancy Check	CRC Cyclic Redundancy Check
-Frame start	character ':'	3.5 chars silence
-Frame end	characters CR/LF	3.5 chars silence
-Gaps in message	1 sec	1.5 times char length
-				
-Start bit	1	1
-Data bits	7	8
-Parity	even/odd	none	even/odd	none
-Stop bits	1	2	1	2
+|   |	Modbus/ASCII | Modbus/RTU |
+|   |-----|-----|
+| Characters |	ASCII 0...9 and A..F | Binary 0...255 |
+| Error check	LRC Longitudinal | Redundancy Check	CRC Cyclic Redundancy Check|
+| Frame start	character| ':'	|3.5 chars silence|
+| Frame end	characters| CR/LF|	3.5 chars silence|
+| Gaps in message|	1 sec|	1.5 times char length|
+| Start bit	1	1|
+| Data bits|	7|	8|
+| Parity	|even/odd	    none |even/odd    none|
+| Stop bits	|  1        2  |   1       2  |
 
 ##Modbus addressing
 The first information in each Modbus message is the address of the receiver. This parameter contains one byte of information. In Modbus/ASCII it is coded with two hexadecimal characters, in Modbus/RTU one byte is used. Valid addresses are in the range 0..247. The values 1..247 are assigned to individual Modbus devices and 0 is used as a broadcast address. Messages sent to the latter address will be accepted by all slaves. A slave always responds to a Modbus message. When responding it uses the same address as the master in the request. In this way the master can see that the device is actually responding to the request. 
