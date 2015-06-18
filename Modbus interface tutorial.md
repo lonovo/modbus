@@ -16,13 +16,15 @@ On simple interfaces like RS485 or RS232, the Modbus messages are sent in plain 
 Each Modbus message has the same structure. Four basic elements are present in each message. The sequence of these elements is the same for all messages, to make it easy to parse the content of the Modbus message. A conversation is always started by a master in the Modbus network. A Modbus master sends a message and—depending of the contents of the message—a slave takes action and responds to it. There can be more masters in a Modbus network. Addressing in the message header is used to define which device should respond to a message. All other nodes on the Modbus network ignore the message if the address field doesn't match their own address. 
 
 Modbus message structure
+
 | Field | Description |
---------------------------
+|-------|-------------|
 | Device address | Address of the receiver|
 |Function code | Code defining message type|
-Data	Data block with additional information
-Error check	Numeric check value to test for communication errors
-Modbus serial transmission modes: Modbus/ASCII and Modbus/RTU
+|Data	Data | block with additional information |
+|Error check | Numeric check value to test for communication errors|
+
+## Modbus serial transmission modes: Modbus/ASCII and Modbus/RTU
 Serial Modbus connections can use two basic transmission modes, ASCII or RTU, remote terminal unit. The transmission mode in serial communications defines the way the Modbus messages are coded. With Modbus/ASCII, the messages are in a readable ASCII format. The Modbus/RTU format uses binary coding which makes the message unreadable when monitoring, but reduces the size of each message which allows for more data exchange in the same time span. All nodes on one Modbus network segment must use the same serial transmission mode. A device configured to use Modbus/ASCII cannot understand messages in Modbus/RTU and vice versa. 
 When using Modbus/ASCII, all messages are coded in hexadecimal values, represented with readable ASCII characters. Only the characters 0...9 and A...F are used for coding. For every byte of information, two communication-bytes are needed, because every communication-byte can only define 4 bits in the hexadecimal system. With Modbus/RTU the data is exchanged in a binary format, where each byte of information is coded in one communication-byte. 
 Modbus messages on serial connections are not sent in a plain format. They are framed to give receivers an easy way to detect the beginning and end of a message. When using Modbus/ASCII, characters are used to start and end a frame. The colon ':' is used to flag the start of a message and each message is ended with a CR/LF combination. Modbus/RTU on the other hand uses time gaps of silence on the communication line for the framing. Each message must be preceded by a time gap with a minimum length of 3.5 characters. If a receiver detects a gap of at least 1.5 characters, it assumes that a new message is comming and the receive buffer is cleared. The main advantage of Modbus/ASCII is, that it allowes gaps between the bytes of a message with a maximum length of 1 second. With Modbus/RTU it is necessary to send each message as a continuous stream. 
@@ -38,7 +40,8 @@ Start bit	1	1
 Data bits	7	8
 Parity	even/odd	none	even/odd	none
 Stop bits	1	2	1	2
-Modbus addressing
+
+## Modbus addressing
 The first information in each Modbus message is the address of the receiver. This parameter contains one byte of information. In Modbus/ASCII it is coded with two hexadecimal characters, in Modbus/RTU one byte is used. Valid addresses are in the range 0..247. The values 1..247 are assigned to individual Modbus devices and 0 is used as a broadcast address. Messages sent to the latter address will be accepted by all slaves. A slave always responds to a Modbus message. When responding it uses the same address as the master in the request. In this way the master can see that the device is actually responding to the request. 
 Within a Modbus device, the holding registers, inputs and outputs are assigned a number between 1 and 10000. One would expect, that the same addresses are used in the Modbus messages to read or set values. Unfortunately this is not the case. In the Modbus messages addresses are used with a value between 0 and 9999. If you want to read the value of output (coil) 18 for example, you have to specify the value 17 in the Modbus query message. More confusing is even, that for input and holding registers an offset must be substracted from the device address to get the proper address to put in the Modbus message structure. This leads to common mistakes and should be taken care of when designing applications with Modbus. The following table shows the address ranges for coils, inputs and holding registers and the way the address in the Modbus message is calculated given the actual address of the item in the slave device. 
 Device and Modbus address ranges
@@ -47,7 +50,8 @@ Device address	Modbus address	Description
 10001...20000*	address - 10001	Inputs
 40001...50000*	address - 40001	Holding registers
 * Maximum value is device dependent 
-Modbus function codes
+
+## Modbus function codes
 The second parameter in each Modbus message is the function code. This defines the message type and the type of action required by the slave. The parameter contains one byte of information. In Modbus/ASCII this is coded with two hexadecimal characters, in Modbus/RTU one byte is used. Valid function codes are in the range 1..255. Not all Modbus devices recognize the same set of function codes. The most common codes are discussed here. 
 Normally, when a Modbus slave answers a response, it uses the same function code as in the request. However, when an error is detected, the highest bit of the function code is turned on. In that way the master can see the difference between success and failure responses. 
 Common Modbus function codes
@@ -65,7 +69,8 @@ Read holding registers
 15	Force multiple coils
 16	Preset multiple registers
 17	Report slave ID
-Function 01: Read coil status
+
+### Function 01: Read coil status
 In Modbus language, a coil is a discrete output value. Modbus function 01 can be used to read the status of such an output. It is only possible to query one device at a time. Broadcast addressing is not supported with this Modbus function. The function can be used to request the status of various coils at once. This is done by defining an output range in the data field of the message. 
 Function 01 query structure
 Byte	Value	Description
@@ -84,7 +89,8 @@ Byte	Value	Description
 3	0...255	Number of data bytes N
 4...N+3	0...255	Bit pattern of coil values
 N+4(...N+5)	LRC/CRC	Error check value
-Function 02: Read input status
+
+### Function 02: Read input status
 Reading input values with Modbus is done in the same way as reading the status of coils. The only difference is that for inputs Modbus function 02 is used. Broadcast addressing mode is not supported. You can only query the value of inputs of one device at a time. Like with coils, the address of the first input, and the number of inputs to read must be put in the data field of the query message. Inputs on devices start numbering at 10001. This address value is equivalent to address 0 in the Modbus message. 
 Function 02 query structure
 Byte	Value	Description
@@ -103,7 +109,8 @@ Byte	Value	Description
 3	0...255	Number of data bytes N
 4...N+3	0...255	Bit pattern of input values
 N+4(...N+5)	LRC/CRC	Error check value
-Function 03: Read holding registers
+
+### Function 03: Read holding registers
 Internal values in a Modbus device are stored in holding registers. These registers are two bytes wide and can be used for various purposes. Some registers contain configuration parameters where others are used to return measured values (temperatures etc.) to a host. Registers in a Modbus compatible device start counting at 40001. They are addressed in the Modbus message structure with addresses starting at 0. Modbus function 03 is used to request one or more holding register values from a device. Only one slave device can be addressed in a single query. Broadcast queries with function 03 are not supported. 
 Function 03 query structure
 Byte	Value	Description
