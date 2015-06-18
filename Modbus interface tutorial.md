@@ -2,13 +2,13 @@
 
 [History of the Modbus interface](#History-of-the-Modbus-interface)
 
-[Modbus message structure](#Modbus-message-structure)
+[Modbus message structure](#modbus-message-structure)
 
-[Modbus serial transmission modes](#Modbus-serial-transmission-modes)
+[Modbus serial transmission modes](#modbus-serial-transmission-modes)
 
-[Modbus addressing](#Modbus-addressing)
+[Modbus addressing](#modbus-addressing)
 
-[Modbus function codes](#Modbus-function-codes)
+[Modbus function codes](#modbus-function-codes)
 
 
 ##History of the Modbus interface 
